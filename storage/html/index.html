@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" charset=utf-8>
+    <link rel="stylesheet" type="text/css" href="/style.css">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+<title>ESP32 Web Server Uploader</title>
+</head>
+<body>
+    <div id="main">
+        <p>Please upload firmware image *.bin file<p>
+        <input id="newbinfile" type="file" onchange="setFileName(this)">
+        <button id="uploadbin" type="button" onclick="upload(this)">Update</button>
+        <p>Please upload html file<p>
+        <input id="newhtmlfile" type="file" onchange="setFileName(this)">
+        <button id="uploadhtml" type="button" onclick="upload(this)">Upload</button>
+        <p><a href="/index.html">Return to begin</a></p>
+        <br /><br />
+        <span id="uploading"></span>
+    </div>
+    <script src="/scripts.js "></script>
+</body>
+</html>

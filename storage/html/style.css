@@ -1,0 +1,32 @@
+div#main {
+	font: 14pt/12pt sans-serif;
+	text-align: center;
+	max-width: 1000px;
+	height: auto;
+	width: 35em;
+	margin: 1em auto 0;
+}
+@media (max-width: 1024px) {
+  div#main {
+    width: 100%;
+    height: auto;
+    }
+}
+@media (max-width: 768px) {
+  div#main {
+    width: 100%;
+    height: auto;
+  }
+}
+@media (max-width: 480px) {
+  div#main {
+    width: 100%;
+    height: auto;
+  }
+}
+@media (max-width: 320px) {
+  div#main {
+    width: 100%;
+    height: auto;
+  }
+}
