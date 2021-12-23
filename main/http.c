@@ -31,6 +31,7 @@
 #define ROOT        "/"
 #define INDEX       "/index.html"
 #define UPLOAD      "/upload/*"
+#define LIST        "/list"
 
 static char *TAG = "web_server_http";
 
@@ -38,6 +39,7 @@ static char *webserver_html_path = NULL;
 
 static esp_err_t webserver_response(httpd_req_t *req);
 static esp_err_t webserver_upload(httpd_req_t *req);
+static esp_err_t webserver_list(httpd_req_t *req);
 
 static const httpd_uri_t uri_html = {
         .uri = URL,
@@ -49,6 +51,10 @@ static const httpd_uri_t upload_html = {
         .method = HTTP_POST,
         .handler = webserver_upload };
 
+static const httpd_uri_t list_html = {
+        .uri = LIST,
+        .method = HTTP_POST,
+        .handler = webserver_list };
 
 static void reboot_task(void *pvParameter) {
 
@@ -486,6 +492,64 @@ static esp_err_t webserver_upload(httpd_req_t *req) {
     return ESP_OK;
 }
 
+static esp_err_t webserver_list(httpd_req_t *req) {
+
+    DIR *dir;
+    struct dirent *de;
+    char *err = NULL;
+    char buff[512];
+    char spaces[16];
+
+    FILE *fp;
+    struct stat file_stat;
+    size_t len, total_len;
+    dir = opendir(webserver_html_path);
+
+    if (!dir) {
+        sprintf(buff, "Open \"%s\" directory failed", webserver_html_path);
+        ESP_LOGE(TAG, "%s. (%s:%u)", buff, __FILE__, __LINE__);
+        httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, buff);
+        return ESP_FAIL;
+    }
+
+    sprintf(buff, "Directory: %s\n\n", webserver_html_path);
+    httpd_resp_sendstr_chunk(req, buff);
+
+    total_len = 0;
+
+    while ((de = readdir(dir))) {
+        sprintf(buff, "%s%s%s", webserver_html_path, DELIM, de->d_name);
+        fp = fopen(buff, "rb");
+        if (fp == NULL) {
+            err = "Cannot open file";
+            ESP_LOGE(TAG, "%s %s. (%s:%u)", err, de->d_name, __FILE__, __LINE__);
+            sprintf(buff, "%s\n", de->d_name);
+        } else {
+            if (fstat(fileno(fp), &file_stat) == 0) {
+                sprintf(buff, "%ld", file_stat.st_size);
+                len = 7-strlen(buff);
+                memset(spaces, ' ', len);
+                spaces[len] = 0;
+                sprintf(buff, "  %s%ld    %s\n", spaces, file_stat.st_size, de->d_name);
+                total_len += file_stat.st_size;
+            }
+        }
+
+        httpd_resp_sendstr_chunk(req, buff);
+        fclose(fp);
+    }
+
+    closedir(dir);
+
+    sprintf(buff, "\nUsed %d\tbytes\nFree %d\tbytes\n", total_len, get_fs_free_space());
+    httpd_resp_sendstr_chunk(req, buff);
+
+    httpd_resp_sendstr_chunk(req, NULL);
+
+    return ESP_OK;
+}
+
+
 static httpd_handle_t webserver_start(void) {
 
     httpd_handle_t server = NULL;
@@ -504,6 +568,8 @@ static httpd_handle_t webserver_start(void) {
         ESP_LOGI(TAG, "Registering URI handlers");
         ret = httpd_register_uri_handler(server, &upload_html);
         if (ret != ESP_OK) ESP_LOGE(TAG, "URL \"%s\" not registered. (%s:%u)", upload_html.uri, __FILE__, __LINE__);
+        ret = httpd_register_uri_handler(server, &list_html);
+        if (ret != ESP_OK) ESP_LOGE(TAG, "URL \"%s\" not registered. (%s:%u)", list_html.uri, __FILE__, __LINE__);
         ret = httpd_register_uri_handler(server, &uri_html);
         if (ret != ESP_OK) ESP_LOGE(TAG, "URL \"%s\" not registered. (%s:%u)", uri_html.uri, __FILE__, __LINE__);
         return server;

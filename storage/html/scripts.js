@@ -58,3 +58,27 @@ async function upload(elem) {
     }
 }
 
+async function listing() {
+    
+    var list_url = "list";
+    
+    try {
+        var response = await fetch(list_url, {
+            method: 'POST'
+        });
+        if (response.ok) {
+            var data = await response.text();
+            document.getElementById("listing").innerHTML = data;
+        } else {
+            var error = await response.text();
+            var message = `${error}. HTTP error ${response.status}.`;
+            alert(message);
+        }
+
+    }
+    catch (error) {
+        alert(`Error! ${error}`);
+    }
+
+}
+
