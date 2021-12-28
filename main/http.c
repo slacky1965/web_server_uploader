@@ -64,7 +64,6 @@ static void reboot_task(void *pvParameter) {
     vTaskDelete(NULL);
 }
 
-
 static char* http_content_type(char *path) {
     char *ext = strrchr(path, '.');
     if (strcmp(ext, ".html") == 0) return "text/html";
@@ -406,15 +405,13 @@ static esp_err_t webserver_update(httpd_req_t *req, const char *full_name) {
             sprintf(buf, "File `%s` %d bytes uploaded successfully.\nNext boot partition is %s.\nRestart system...", name?name:full_name, global_recv_len, partition->label);
             httpd_resp_send(req, buf, strlen(buf));
 
-            xTaskCreate(&reboot_task, "reboot_task", 2048, NULL, 0, NULL);
-
-//            esp_wifi_disconnect();
-
             const esp_partition_t *boot_partition = esp_ota_get_boot_partition();
             printf("Next boot partition \"%s\" name subtype %d at offset 0x%x\n",
                   boot_partition->label, boot_partition->subtype, boot_partition->address);
             printf("Prepare to restart system!\n");
             printf("Rebooting...\n");
+
+            xTaskCreate(&reboot_task, "reboot_task", 2048, NULL, 0, NULL);
 
 
         } else {
