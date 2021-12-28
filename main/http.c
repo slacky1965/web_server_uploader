@@ -139,6 +139,13 @@ static esp_err_t webserver_upload_html(httpd_req_t *req, const char *full_name) 
         return ESP_FAIL;
     }
 
+	if (req->content_len == 0) {
+        err = "File empty";
+        ESP_LOGE(TAG, "%s. (%s:%u)", err, __FILE__, __LINE__);
+        httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, err);
+        return ESP_FAIL;
+	}
+
     if (get_fs_free_space() < req->content_len) {
         err = "Upload file too large";
         ESP_LOGE(TAG, "%s. (%s:%u)", err, __FILE__, __LINE__);
@@ -281,6 +288,13 @@ static esp_err_t webserver_update(httpd_req_t *req, const char *full_name) {
     esp_app_desc_t              *app_desc = NULL;
 
     global_cont_len = req->content_len;
+
+	if (req->content_len == 0) {
+        err = "File empty";
+        ESP_LOGE(TAG, "%s. (%s:%u)", err, __FILE__, __LINE__);
+        httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, err);
+        return ESP_FAIL;
+	}
 
     partition = esp_ota_get_next_update_partition(NULL);
 
