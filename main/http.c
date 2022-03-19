@@ -550,7 +550,7 @@ static esp_err_t webserver_delete(httpd_req_t *req) {
 
     if (files_array == NULL) {
         cJSON_Delete(root);
-        err = "Command key not found";
+        err = "Array key not found";
         ESP_LOGE(TAG, "%s. (%s:%u)", err, __FILE__, __LINE__);
         httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, err);
         return ESP_FAIL;
