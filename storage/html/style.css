@@ -30,3 +30,10 @@ div#main {
     height: auto;
   }
 }
+.blink {
+  animation: blink 3s infinite;
+}
+@keyframes blink {
+  from { opacity: 1;}
+  to { opacity: 0;}
+}

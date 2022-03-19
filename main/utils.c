@@ -11,7 +11,7 @@ bool get_status_spiffs() {
     return spiffs;
 }
 
-static esp_vfs_spiffs_conf_t conf = {
+static esp_vfs_spiffs_conf_t spiffs_conf = {
         .base_path = MOUNT_POINT_SPIFFS,
         .partition_label = NULL,
         .max_files = 5,
@@ -23,7 +23,7 @@ void init_spiffs() {
 
     spiffs = true;
 
-    esp_err_t ret = esp_vfs_spiffs_register(&conf);
+    esp_err_t ret = esp_vfs_spiffs_register(&spiffs_conf);
 
     if (ret != ESP_OK) {
         if (ret == ESP_ERR_NO_MEM) {
@@ -43,11 +43,10 @@ size_t get_fs_free_space() {
     size_t full;
     size_t used;
 
-    if (esp_spiffs_info(conf.partition_label, &full, &used) != ESP_OK) {
+    if (esp_spiffs_info(spiffs_conf.partition_label, &full, &used) != ESP_OK) {
         return 0;
     }
 
     return full - used;
 }
-
 
